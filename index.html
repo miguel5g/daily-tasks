@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <title>Daily Tasks</title>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="shortcut icon" href="./assets/favicon.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"
+    integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g=="
+    crossorigin="anonymous"></script>
+  <script src="./script.js"></script>
+</head>
+
+<body>
+  <header>
+    <h1>
+      <img src="./assets/icon.svg" alt="App icon">
+      Daily Tasks
+    </h1>
+    <p>Salve suas tarefas diárias e poupe um tempo!</p>
+  </header>
+
+  <main>
+    <div id="add-task">
+      <input type="text" placeholder="Adicionar nova tarefa..." maxlength="100">
+      <button type="button">
+        <i data-feather="plus"></i>
+      </button>
+    </div>
+
+    <ul class="tasks">
+    </ul>
+  </main>
+</body>
+
+</html>
