@@ -40,6 +40,45 @@
     <ul class="tasks">
     </ul>
   </main>
+
+  <div class="floating-buttons">
+    <button id="settings-button" class="icon-button">
+      <i data-feather="settings"></i>
+    </button>
+  </div>
+
+  <div class="modal closed-modal">
+    <div class="modal-content settings-modal closed-modal">
+      <button class="icon-button modal-close-button">
+        <i data-feather="x"></i>
+      </button>
+
+      <h3 class="modal-title">Configurações</h3>
+      <p>Configurações da aplicação! Deixe com sua cara.</p>
+
+      <div id="option-save-local" class="option-group">
+        <strong>Salvar dados no navegador</strong>
+        <input type="checkbox" id="">
+      </div>
+
+      <div class="option-group">
+        <strong>Salvar dados na nuvem</strong>
+        <span class="coming-soon">Em breve!</span>
+      </div>
+
+      <div class="option-group">
+        <strong>Alterar idioma</strong>
+        <span class="coming-soon">Em breve!</span>
+      </div>
+
+      <div class="spacer"></div>
+
+      <button id="save-settings">
+        <i data-feather="save"></i>
+        Salvar
+      </button>
+    </div> <!-- Settings Modal Content -->
+  </div> <!-- Modal -->
 </body>
 
 </html>

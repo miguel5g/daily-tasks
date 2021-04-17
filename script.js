@@ -2,6 +2,11 @@ document.addEventListener('DOMContentLoaded', function () {
   feather.replace(); // Transformar os ícones
 
   // Variáveis iniciais
+  let settings = {
+    saveLocal: true,
+    saveCloud: false,
+    lang: 'pt-BR',
+  };
   let tasks = [];
   const tasksElem = document.querySelector('ul.tasks');
   const addTaskInputElem = document.querySelector('#add-task input');
@@ -54,6 +59,26 @@ document.addEventListener('DOMContentLoaded', function () {
       .forEach(elem => elem.addEventListener('click', handleComplete));
   }
 
+  // Adicionar funções para todos os butões de cofigurações
+  function registerSettingsActions() {
+    document
+      .querySelector('.settings-modal .modal-close-button')
+      .onclick = () => closeModal('settings');
+    document
+      .querySelector('.floating-buttons #settings-button')
+      .onclick = () => openModal('settings');
+    document
+      .querySelector('button#save-settings')
+      .onclick = handleSaveSettings;
+  }
+
+  // Função que vai chamar todas as funções iniciais
+  function registerAll() {
+    loadSettings();
+    loadData();
+    registerSettingsActions();
+  }
+
   // Chamada quando o usuário clica em adicionar tarefa
   function handleAddTask() {
     const task = {
@@ -100,9 +125,17 @@ document.addEventListener('DOMContentLoaded', function () {
     saveData();
   }
 
+  // Chamado quando o usuário clica em salvar configurações
+  function handleSaveSettings() {
+    settings.saveLocal = document.querySelector('#option-save-local input').checked;
+
+    closeModal('settings');
+    saveSettings();
+  }
+
   // Carregar dados do localStorage
   function loadData() {
-    if (localStorage.getItem('daily-tasks/data')) {
+    if (localStorage.getItem('daily-tasks/data') && settings.saveLocal) {
       tasks = JSON.parse(localStorage.getItem('daily-tasks/data'));
       render();
     }
@@ -110,7 +143,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Salvar dados no localStorage
   function saveData() {
-    localStorage.setItem('daily-tasks/data', JSON.stringify(tasks));
+    if (settings.saveLocal) localStorage.setItem('daily-tasks/data', JSON.stringify(tasks));
+  }
+
+  // Carregar configurações do localStorage
+  function loadSettings() {
+    if (localStorage.getItem('daily-tasks/settings')) {
+      settings = JSON.parse(localStorage.getItem('daily-tasks/settings'));
+      render();
+    }
+  }
+
+  // Salvar configurações do localStorage
+  function saveSettings() {
+    localStorage.setItem('daily-tasks/settings', JSON.stringify(settings));
+  }
+
+  // Definir configurações no modal
+  function populateSettings() {
+    document.querySelector('#option-save-local input').checked = settings.saveLocal;
+  }
+
+  // Fechar um modal
+  function closeModal(modal) {
+    if (!modal) return;
+
+    document.querySelector(`.${modal}-modal`).classList.add('closed-modal');
+    document.querySelector('.modal').classList.add('closed-modal');
+  }
+
+  // Abrir um modal
+  function openModal(modal) {
+    if (!modal) return;
+
+    if (modal === 'settings') populateSettings();
+
+    document.querySelector(`.${modal}-modal`).classList.remove('closed-modal');
+    document.querySelector('.modal').classList.remove('closed-modal');
   }
 
   // Adicionar função que vai ser chamada para adicionar uma nova tarefa
@@ -118,5 +187,5 @@ document.addEventListener('DOMContentLoaded', function () {
   addTaskInputElem.onkeydown = ({ key }) => { if (key === 'Enter') handleAddTask() };
 
   // Tentar carregar dados do localStorage
-  loadData();
+  registerAll();
 });
