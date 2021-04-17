@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     deleteOnComplete: false,
   };
   let tasks = [];
+  const versions = ['1.0.0', '1.0.1'];
   const tasksElem = document.querySelector('ul.tasks');
   const addTaskInputElem = document.querySelector('#add-task input');
   const addTaskButtonElem = document.querySelector('#add-task button');
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return `
       <li id="${task.id}" class="task-item${task.isCompleted ? ' completed' : ''}">
         <input id="${task.id}" class="make-completed" type="checkbox" ${task.isCompleted ? 'checked' : ''}>
-        <span>${task.content}</span>
+        <span>${task.title}</span>
         <i id="${task.id}" class="delete-task" data-feather="trash"></i>
       </li>
     `;
@@ -75,6 +76,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Função que vai chamar todas as funções iniciais
   function registerAll() {
+    // Adicionar função que vai ser chamada para adicionar uma nova tarefa
+    addTaskButtonElem.onclick = handleAddTask;
+    addTaskInputElem.onkeydown = ({ key }) => { if (key === 'Enter') handleAddTask() };
+
+    update();
     loadSettings();
     loadData();
     registerSettingsActions();
@@ -84,12 +90,14 @@ document.addEventListener('DOMContentLoaded', function () {
   function handleAddTask() {
     const task = {
       id: String(Date.now()),
-      content: addTaskInputElem.value,
+      title: addTaskInputElem.value,
+      description: 'Sem descrição...',
       isCompleted: false,
+      createdAt: Date.now(),
     };
 
     // Cancelar caso o content não seja válido
-    if (!verifyTask(task.content)) return;
+    if (!verifyTask(task.title)) return;
 
     tasks.push(task);
     addTaskInputElem.value = '';
@@ -189,10 +197,35 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('.modal').classList.remove('closed-modal');
   }
 
-  // Adicionar função que vai ser chamada para adicionar uma nova tarefa
-  addTaskButtonElem.onclick = handleAddTask;
-  addTaskInputElem.onkeydown = ({ key }) => { if (key === 'Enter') handleAddTask() };
+  // Atualizar dados salvos para uma nova versão
+  function update() {
+    if (!localStorage.getItem('daily-tasks/version')) {
+      return localStorage.setItem('daily-tasks/version', versions[versions.length - 1]);
+    };
+    if (localStorage.getItem('daily-tasks/version') === versions[versions.length]) return;
 
-  // Tentar carregar dados do localStorage
+    const currentVersion = localStorage.getItem('daily-tasks/version');
+    const updaters = {
+      '1.0.0': () => { },
+      '1.0.1': () => {
+        console.log('[Update] 1.0.0 -> 1.0.1');
+        loadData();
+        tasks = tasks.map(task => ({
+          id: task.id,
+          title: task.content,
+          description: 'Sem descrição...',
+          isCompleted: task.isCompleted,
+          createdAt: Date.now(),
+        }));
+        saveData();
+        return localStorage.setItem('daily-tasks/version', '1.0.1');
+      },
+    };
+    const neededVersions = versions.slice(versions.indexOf(currentVersion) + 1);
+
+    neededVersions.forEach(version => updaters[version]())
+  }
+
+  // Registrar todas as funções iniciais
   registerAll();
 });
