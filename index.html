@@ -30,26 +30,31 @@
   </header>
 
   <main>
-    <div id="add-task">
-      <input type="text" placeholder="Adicionar nova tarefa..." maxlength="100">
-      <button type="button">
-        <i data-feather="plus"></i>
+    <div id="tasks-day">
+      <button class="icon-button">
+        <i data-feather="chevron-left"></i>
+      </button>
+      <strong>Hoje</strong>
+      <button class="icon-button">
+        <i data-feather="chevron-right"></i>
       </button>
     </div>
 
-    <ul class="tasks">
-    </ul>
+    <ul class="tasks"></ul>
   </main>
 
   <div class="floating-buttons">
-    <button id="settings-button" class="icon-button">
+    <button id="open-add-task-modal" class="icon-button">
+      <i data-feather="plus"></i>
+    </button>
+    <button id="open-settings-modal" class="icon-button">
       <i data-feather="settings"></i>
     </button>
   </div>
 
   <div class="modal closed-modal">
-    <div class="modal-content settings-modal closed-modal">
-      <button class="icon-button modal-close-button">
+    <div id="settings-modal" class="modal-content closed-modal">
+      <button modal-name="settings" class="icon-button modal-close-button">
         <i data-feather="x"></i>
       </button>
 
@@ -83,6 +88,32 @@
         Salvar
       </button>
     </div> <!-- Settings Modal Content -->
+
+    <div id="add-task-modal" class="modal-content closed-modal">
+      <button modal-name="add-task" class="icon-button modal-close-button">
+        <i data-feather="x"></i>
+      </button>
+
+      <h3 class="modal-title">Adicionar tarefa</h3>
+      <form id="add-task">
+        <div class="input-group">
+          <label for="title">Título</label>
+          <input type="text" name="title" id="title" maxlength="50">
+        </div>
+        <div class="input-group">
+          <label for="description">Descrição</label>
+          <textarea type="text" name="description" id="description" maxlength="300"></textarea>
+        
+        </div>
+
+        <div class="spacer"></div>
+        
+        <button id="save-task" type="submit">
+          <i data-feather="plus"></i>
+          Adicionar tarefa
+        </button>
+      </form>
+    </div>
   </div> <!-- Modal -->
 </body>
 

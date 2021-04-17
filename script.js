@@ -1,23 +1,106 @@
+class TaskDate {
+  static ONE_DAY = 1000 * 60 * 60 * 24;
+
+  /**
+   * @param {number} timestamp
+   */
+  constructor(timestamp) {
+    const date = new Date();
+    if (timestamp) {
+      this.date = new Date(timestamp);
+    } else {
+      this.date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+  }
+
+  previousDay() {
+    return new TaskDate(this.date.getTime() - TaskDate.ONE_DAY);
+  }
+
+  nextDay() {
+    return new TaskDate(this.date.getTime() + TaskDate.ONE_DAY);
+  }
+
+  toString() {
+    return `${this.date.getDate().toString().padStart(2, '0')}/${(this.date.getMonth() + 1).toString().padStart(2, '0')}/${this.date.getFullYear()}`;
+  }
+
+  /**
+   * @param {TaskDate} date 
+   */
+  toStringFrom(date) {
+    try {
+      if (date.getTime() === this.getTime()) {
+        return 'Hoje';
+      }
+      else if (date.getTime() + TaskDate.ONE_DAY === this.getTime()) {
+        return 'Amanhã';
+      }
+      else if (date.getTime() - TaskDate.ONE_DAY === this.getTime()) {
+        return 'Ontem';
+      } else {
+        return TaskDate.toString(this.date);
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  getTime() {
+    return this.date.getTime();
+  }
+
+  /**
+   * @param {TaskDate} date
+   */
+  static toString(date) {
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   feather.replace(); // Transformar os ícones
 
   // Variáveis iniciais
+
+  /* Versões */
+  const versions = ['1.0.0', '1.0.1', '1.0.2'];
+
+  /* Elementos */
+  const tasksElem = document.querySelector('ul.tasks');
+  const dayElem = document.querySelector('#tasks-day strong');
+  const previousDayButtonElem = document.querySelectorAll('#tasks-day button')[0];
+  const nextDayButtonElem = document.querySelectorAll('#tasks-day button')[1];
+
+  /* Lista de tarefas */
+  let tasks = [];
+  let allTasks = [];
+
+  /* Dados sobre a data */
+  const today = new TaskDate();
+  let current = today;
+
+  /* Configurações */
   let settings = {
     saveLocal: true,
     saveCloud: false,
     lang: 'pt-BR',
     deleteOnComplete: false,
   };
-  let tasks = [];
-  const versions = ['1.0.0', '1.0.1'];
-  const tasksElem = document.querySelector('ul.tasks');
-  const addTaskInputElem = document.querySelector('#add-task input');
-  const addTaskButtonElem = document.querySelector('#add-task button');
 
   // Verificar se o content da tarefa é maior que 4 ou menor que 101 caracteres
-  function verifyTask(content = '') {
-    if (content.length < 5 || content.length > 100) return false;
-    else return true;
+  function verifyTask(task) {
+    if (!task) {
+      return false;
+    } else if (task.title.length < 5 || task.title.length > 50) {
+      document.querySelector('form#add-task input#title').classList.add('invalid');
+      return false;
+    } else if (task.description.length > 300) {
+      document.querySelector('form#add-task textarea#description').classList.add('invalid');
+      return false;
+    } else {
+      return true;
+    };
   }
 
   // Gerar a string do elemento
@@ -36,6 +119,23 @@ document.addEventListener('DOMContentLoaded', function () {
     tasksElem.innerHTML = '';
 
     tasks = tasks.sort((a, b) => a.isCompleted - b.isCompleted);
+
+    if (tasks.length === 0) {
+      tasksElem.innerHTML = `
+      <li class="no-tasks">
+        <img src="./assets/no-tasks.svg" alt="No tasks image">
+        <strong>Nenhuma tarefa para ${current.toStringFrom(today)}!</strong>
+        ${current.getTime() === today.getTime() - TaskDate.ONE_DAY ? '' : `
+        <button id="no-tasks-add-button">
+          <i data-feather="plus"></i>
+          Adicionar tarefa
+        </button>
+        `}
+      </li>
+      `;
+      if (current.getTime() !== today.getTime() - TaskDate.ONE_DAY) registerAddTaskActions();
+
+    }
 
     tasks.forEach((task) => {
       const taskElem = genTaskItemElem(task);
@@ -61,24 +161,42 @@ document.addEventListener('DOMContentLoaded', function () {
       .forEach(elem => elem.addEventListener('click', handleComplete));
   }
 
-  // Adicionar funções para todos os butões de cofigurações
+  // Adicionar funções para todos os botões de cofigurações
   function registerSettingsActions() {
     document
-      .querySelector('.settings-modal .modal-close-button')
-      .onclick = () => closeModal('settings');
-    document
-      .querySelector('.floating-buttons #settings-button')
+      .querySelector('.floating-buttons #open-settings-modal')
       .onclick = () => openModal('settings');
     document
       .querySelector('button#save-settings')
       .onclick = handleSaveSettings;
   }
 
+  // Adicionar funções para [add-task]
+  function registerAddTaskActions() {
+    document
+      .querySelector('button#no-tasks-add-button')
+      .onclick = () => openModal('add-task', false);
+    document
+      .querySelector('button#open-add-task-modal')
+      .onclick = () => openModal('add-task', false);
+
+    const titleElem = document.querySelector('form#add-task input#title');
+    const descriptionElem = document.querySelector('form#add-task textarea#description');
+
+    titleElem.onfocus = () => titleElem.classList.remove('invalid');
+    descriptionElem.onfocus = () => descriptionElem.classList.remove('invalid');
+  }
+
   // Função que vai chamar todas as funções iniciais
   function registerAll() {
     // Adicionar função que vai ser chamada para adicionar uma nova tarefa
-    addTaskButtonElem.onclick = handleAddTask;
-    addTaskInputElem.onkeydown = ({ key }) => { if (key === 'Enter') handleAddTask() };
+    // addTaskButtonElem.onclick = handleAddTask;
+    // addTaskInputElem.onkeydown = ({ key }) => { if (key === 'Enter') handleAddTask() };
+    previousDayButtonElem.onclick = previousDay;
+    nextDayButtonElem.onclick = nextDay;
+    document.querySelector('form#add-task').onsubmit = handleAddTask;
+    document.querySelectorAll('button.modal-close-button')
+      .forEach(elem => { elem.onclick = closeModal });
 
     update();
     loadSettings();
@@ -87,25 +205,38 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Chamada quando o usuário clica em adicionar tarefa
-  function handleAddTask() {
+  function handleAddTask(event) {
+    event.preventDefault();
+
+    const tempDate = new Date();
+
     const task = {
-      id: String(Date.now()),
-      title: addTaskInputElem.value,
-      description: 'Sem descrição...',
+      id: String(tempDate.getTime()),
+      title: document.querySelector('form#add-task input#title').value,
+      description: document.querySelector('form#add-task textarea#description').value || 'Sem descrição',
       isCompleted: false,
-      createdAt: Date.now(),
+      day: new Date(current.date.getFullYear(), current.date.getMonth(), current.date.getDate()).getTime(),
+      createdAt: tempDate.getTime,
     };
 
-    // Cancelar caso o content não seja válido
-    if (!verifyTask(task.title)) return;
+    // Cancelar caso o título ou descrição não seja válido
+    if (!verifyTask(task)) return;
 
-    tasks.push(task);
-    addTaskInputElem.value = '';
+    document.querySelector('form#add-task input#title').value = '';
+    document.querySelector('form#add-task textarea#description').value = '';
+
+    allTasks.push(task);
+    closeModal('add-task', false);
 
     const taskElem = genTaskItemElem(task);
-    tasksElem.innerHTML = taskElem + tasksElem.innerHTML;
+    if (tasks.length === 0) {
+      tasksElem.innerHTML = taskElem;
+    } else {
+      tasksElem.innerHTML = taskElem + tasksElem.innerHTML;
+    }
 
     feather.replace();
+    updateTasks();
     registerDeleteAction();
     registerCompleteAction();
     saveData();
@@ -115,7 +246,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function handleDeleteTask(event) {
     const taskId = event.path.filter(item => item.tagName === 'svg')[0].id;
 
-    tasks = tasks.filter(task => task.id !== taskId);
+    allTasks = allTasks.filter(task => task.id !== taskId);
+    updateTasks();
     render();
     saveData();
   }
@@ -126,38 +258,59 @@ document.addEventListener('DOMContentLoaded', function () {
     const status = event.target.checked;
 
     if (settings.deleteOnComplete) {
-      tasks = tasks.filter(task => task.id !== taskId);
+      allTasks = allTasks.filter(task => task.id !== taskId);
     } else {
-      tasks = tasks.map(task => ({
+      allTasks = allTasks.map(task => ({
         ...task,
         isCompleted: task.id === taskId ? status : task.isCompleted,
       }));
     }
 
+    updateTasks();
     render();
     saveData();
   }
 
   // Chamado quando o usuário clica em salvar configurações
-  function handleSaveSettings() {
+  function handleSaveSettings(event) {
     settings.saveLocal = document.querySelector('#option-save-local input').checked;
     settings.deleteOnComplete = document.querySelector('#option-delete-on-complete input').checked;
 
-    closeModal('settings');
+    closeModal('settings', false);
     saveSettings();
+  }
+
+  // Função chamada quando o usuário muda o dia de visualização
+  function handleChangeDay() {
+    dayElem.innerHTML = current.toStringFrom(today);
+
+    updateTasks();
+
+    if (current.previousDay().getTime() < today.previousDay().getTime()) {
+      previousDayButtonElem.disabled = true;
+    } else {
+      previousDayButtonElem.disabled = false;
+    }
+
+    if (current.nextDay().getTime() > today.nextDay().getTime() + (TaskDate.ONE_DAY * 6)) {
+      nextDayButtonElem.disabled = true;
+    } else {
+      nextDayButtonElem.disabled = false;
+    }
   }
 
   // Carregar dados do localStorage
   function loadData() {
     if (localStorage.getItem('daily-tasks/data') && settings.saveLocal) {
-      tasks = JSON.parse(localStorage.getItem('daily-tasks/data'));
+      allTasks = JSON.parse(localStorage.getItem('daily-tasks/data'));
+      updateTasks();
       render();
     }
   }
 
   // Salvar dados no localStorage
   function saveData() {
-    if (settings.saveLocal) localStorage.setItem('daily-tasks/data', JSON.stringify(tasks));
+    if (settings.saveLocal) localStorage.setItem('daily-tasks/data', JSON.stringify(allTasks));
   }
 
   // Carregar configurações do localStorage
@@ -180,20 +333,24 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Fechar um modal
-  function closeModal(modal) {
-    if (!modal) return;
+  function closeModal(event, isEvent = true) {
+    const modalName = !isEvent ? event : event
+      .path.filter(item => (item.tagName || '').toLowerCase() == 'button')[0]
+      .getAttribute('modal-name');
 
-    document.querySelector(`.${modal}-modal`).classList.add('closed-modal');
+    if (!modalName || modalName === '') return;
+
+    document.querySelector(`#${modalName}-modal`).classList.add('closed-modal');
     document.querySelector('.modal').classList.add('closed-modal');
   }
 
   // Abrir um modal
-  function openModal(modal) {
-    if (!modal) return;
+  function openModal(modalName) {
+    if (!modalName) return;
 
-    if (modal === 'settings') populateSettings();
+    if (modalName === 'settings') populateSettings();
 
-    document.querySelector(`.${modal}-modal`).classList.remove('closed-modal');
+    document.querySelector(`#${modalName}-modal`).classList.remove('closed-modal');
     document.querySelector('.modal').classList.remove('closed-modal');
   }
 
@@ -220,10 +377,51 @@ document.addEventListener('DOMContentLoaded', function () {
         saveData();
         return localStorage.setItem('daily-tasks/version', '1.0.1');
       },
+      '1.0.2': () => {
+        console.log('[Update] 1.0.1 -> 1.0.2');
+        loadData();
+        allTasks = allTasks.map(task => {
+          const tempDate = new Date(task.createdAt);
+          const newTask = {
+            ...task,
+            day: new Date(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate()).getTime(),
+          }
+          return newTask;
+        });
+        saveData();
+        return localStorage.setItem('daily-tasks/version', '1.0.2');
+      }
     };
     const neededVersions = versions.slice(versions.indexOf(currentVersion) + 1);
 
     neededVersions.forEach(version => updaters[version]())
+  }
+
+  // Atualizar tasks do dia selecionado
+  function updateTasks() {
+    /**
+     * @param {TaskDate} date 
+     */
+    function getTasksFrom(date) {
+      return allTasks.filter(task => task.day === date.getTime());
+    }
+
+    tasks = getTasksFrom(current);
+    render();
+  }
+
+  // Voltar para o dia anterior
+  function previousDay() {
+    if (!(current.previousDay().getTime() < today.previousDay().getTime())) {
+      current = current.previousDay();
+      handleChangeDay();
+    }
+  }
+
+  // Ir para o próximo dia
+  function nextDay() {
+    current = current.nextDay();
+    handleChangeDay();
   }
 
   // Registrar todas as funções iniciais
