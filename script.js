@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     saveLocal: true,
     saveCloud: false,
     lang: 'pt-BR',
+    deleteOnComplete: false,
   };
   let tasks = [];
   const tasksElem = document.querySelector('ul.tasks');
@@ -116,10 +117,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const taskId = event.target.id;
     const status = event.target.checked;
 
-    tasks = tasks.map(task => ({
-      ...task,
-      isCompleted: task.id === taskId ? status : task.isCompleted,
-    }));
+    if (settings.deleteOnComplete) {
+      tasks = tasks.filter(task => task.id !== taskId);
+    } else {
+      tasks = tasks.map(task => ({
+        ...task,
+        isCompleted: task.id === taskId ? status : task.isCompleted,
+      }));
+    }
 
     render();
     saveData();
@@ -128,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Chamado quando o usuário clica em salvar configurações
   function handleSaveSettings() {
     settings.saveLocal = document.querySelector('#option-save-local input').checked;
+    settings.deleteOnComplete = document.querySelector('#option-delete-on-complete input').checked;
 
     closeModal('settings');
     saveSettings();
@@ -162,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Definir configurações no modal
   function populateSettings() {
     document.querySelector('#option-save-local input').checked = settings.saveLocal;
+    document.querySelector('#option-delete-on-complete input').checked = settings.deleteOnComplete;
   }
 
   // Fechar um modal
