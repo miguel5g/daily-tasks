@@ -5,6 +5,7 @@
   --background: #FFFFFF;
   --background-secondary: #EDEDED;
   --background-tertiary: #F2F2F2;
+  --linear: linear-gradient(135deg, #26F1FF 0%, #00C6D3 100%);
 }
 
 * {
@@ -73,18 +74,16 @@ body > main {
   
   width: 425px;
   margin-bottom: 32px;
-
-  background: var(--background);
-  border-radius: 4px;
-  box-shadow: 0px 7px 26px 0px  rgba(0, 0, 0, 0.13);
 }
 
 #add-task input {
   width: 100%;
   padding: 13px;
 
-  background: none;
+  background: var(--background);
   border: none;
+  border-radius: 4px;
+  box-shadow: 0px 7px 26px 0px  rgba(0, 0, 0, 0.13);
   
   font-family: 'Bai Jamjuree', sans-serif;
   font-size: 18px;
@@ -93,23 +92,21 @@ body > main {
 
 #add-task button {
   padding: 13px;
+  margin-left: 7px;
 
-  background: none;
+  background: var(--linear);
   border: none;
-  border-left: 1px solid rgba(0, 0, 0, 0.13);
+  border-radius: 4px;
+  box-shadow: 0px 7px 26px 0px  rgba(0, 0, 0, 0.13);
 
-  color: var(--text);
+  color: #FFF;
   font-size: 0;
 
   transition: all 0.15s;
 }
 
 #add-task button:hover {
-  background: rgba(0, 0, 0, 0.05);
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-
-  color: var(--title);
+  opacity: 0.75;
 }
 
 .tasks {
@@ -213,7 +210,7 @@ body > main {
 }
 
 #settings-button {
-  background: linear-gradient(135deg, #26F1FF 0%, #00C6D3 100%);
+  background: var(--linear);
   border-radius: 4px;
   border: none;
   box-shadow: 0px 7px 26px 0px  rgba(0, 0, 0, 0.13);
@@ -337,7 +334,7 @@ body > main {
   margin: 0 auto;
   padding: 7px;
 
-  background: linear-gradient(135deg, #26F1FF 0%, #00C6D3 100%);
+  background: var(--linear);
   border-radius: 4px;
   border: none;
   box-shadow: 0px 2px 16px 0px  rgba(0, 0, 0, 0.25);
