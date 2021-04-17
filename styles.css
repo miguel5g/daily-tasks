@@ -24,9 +24,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
 
-  min-height: 100vh;
+  height: 100vh;
   padding: 23px 100px;
 
   background: var(--background-secondary);
@@ -117,7 +116,25 @@ body > main {
   display: flex;
   flex-direction: column;
 
+  padding-right: 13px;
+
   list-style: none;
+  overflow-y: scroll;
+}
+
+.tasks::-webkit-scrollbar {
+  width: 5px;
+}
+
+.tasks::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.tasks::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+
+  cursor: pointer;
 }
 
 .task-item {
@@ -130,7 +147,6 @@ body > main {
 
   background: var(--background);
   border-radius: 4px;
-  box-shadow: 0px 7px 26px 0px  rgba(0, 0, 0, 0.13);
 }
 
 .task-item:last-child {
@@ -139,7 +155,6 @@ body > main {
 
 .task-item.completed {
   background: var(--background-tertiary);
-  box-shadow: 0px 7px 26px 0px  rgba(0, 0, 0, 0.1);
 }
 
 .task-item.completed span {
