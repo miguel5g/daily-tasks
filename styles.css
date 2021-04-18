@@ -60,6 +60,7 @@ body header h1 img {
 }
 
 body header p {
+  text-align: center;
   font-size: 18px;
 }
 
@@ -219,7 +220,6 @@ body > main {
 .task-item span {
   margin-right: 7px;
   width: 100%;
-  max-width: 306px;
 
   color: var(--title);
   font-size: 18px;
@@ -487,4 +487,74 @@ button#save-task:hover {
 
 .closed-modal {
   display: none;
+}
+
+@media (max-width: 768px) {
+  body {
+    width: 100vw;
+    padding: 23px;
+  }
+
+  body header h1 {
+    font-size: 38px;
+    line-height: 38px;
+  }
+
+  body header img {
+    height: 38px;
+    width: 38px;
+  }
+
+  body header p {
+    font-size: 16px;
+  }
+
+  #tasks-day {
+    width: 100%;
+  }
+
+  body main {
+    width: 100%;
+  }
+
+  .tasks {
+    width: 100%;
+    margin-bottom: 49px;
+  }
+
+  .task-item {
+    width: 100%;
+  }
+
+  .floating-buttons {
+    bottom: 13px;
+    right: 13px;
+  }
+
+  .no-tasks {
+    text-align: center;
+  }
+
+  .no-tasks strong {
+    font-size: 18px;
+  }
+
+  .modal {
+    padding: 7px;
+  }
+
+  .modal-content {
+    width: 100%;
+  }
+
+  form#add-task .input-group {
+    width: 100%;
+  }
+
+  form#add-task textarea {
+    max-width: 100%;
+    max-height: 200px;
+    min-width: 100%;
+    min-height: 100px;
+  }
 }
