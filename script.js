@@ -51,7 +51,7 @@ class TaskDate {
   }
 
   /**
-   * @param {TaskDate} date
+   * @param {Date} date
    */
   static toString(date) {
     return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
@@ -79,6 +79,9 @@ document.addEventListener('DOMContentLoaded', function () {
   /* Dados sobre a data */
   const today = new TaskDate();
   let current = today;
+
+  /* Tarefa selecionada */
+  let selectedTask;
 
   /* Configurações */
   let settings = {
@@ -109,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
       <li id="${task.id}" class="task-item${task.isCompleted ? ' completed' : ''}">
         <input id="${task.id}" class="make-completed" type="checkbox" ${task.isCompleted ? 'checked' : ''}>
         <span>${task.title}</span>
-        <i id="${task.id}" class="delete-task" data-feather="trash"></i>
+        <i id="${task.id}" class="open-task-info" data-feather="info"></i>
       </li>
     `;
   }
@@ -143,15 +146,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     feather.replace();
-    registerDeleteAction();
+    registerOpenInfoButtons();
     registerCompleteAction();
   }
 
-  // Adicionar função a todos os botões de deletar
-  function registerDeleteAction() {
+  // Adicionar função a todos os botões de informações
+  function registerOpenInfoButtons() {
     document
-      .querySelectorAll('svg.delete-task')
-      .forEach(elem => elem.addEventListener('click', handleDeleteTask));
+      .querySelectorAll('svg.open-task-info')
+      .forEach(elem => elem.addEventListener('click', (event) => {
+        const taskId = event.path.filter(item => item.tagName === 'svg')[0].id;
+        selectedTask = taskId;
+        openModal('task-info');
+        populateTaskInfo(taskId);
+      }));
+    document
+      .querySelector('#task-info-modal .actions #task-info-action-move-tomorrow')
+      .onclick = () => {
+        closeModal('task-info', false);
+        handleMoveTomorrow(selectedTask);
+      };
+    document
+      .querySelector('#task-info-modal .actions #task-info-action-delete')
+      .onclick = () => {
+        closeModal('task-info', false);
+        handleDeleteTask(selectedTask);
+      };
   }
 
   // Adicionar função a todos os Checkbox
@@ -173,12 +193,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Adicionar funções para [add-task]
   function registerAddTaskActions() {
-    document
-      .querySelector('button#no-tasks-add-button')
-      .onclick = () => openModal('add-task', false);
+    try {
+      document
+        .querySelector('button#no-tasks-add-button')
+        .onclick = () => openModal('add-task');
+    } catch (err) { }
     document
       .querySelector('button#open-add-task-modal')
-      .onclick = () => openModal('add-task', false);
+      .onclick = () => openModal('add-task');
 
     const titleElem = document.querySelector('form#add-task input#title');
     const descriptionElem = document.querySelector('form#add-task textarea#description');
@@ -202,6 +224,7 @@ document.addEventListener('DOMContentLoaded', function () {
     loadSettings();
     loadData();
     registerSettingsActions();
+    registerAddTaskActions();
   }
 
   // Chamada quando o usuário clica em adicionar tarefa
@@ -216,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
       description: document.querySelector('form#add-task textarea#description').value || 'Sem descrição',
       isCompleted: false,
       day: new Date(current.date.getFullYear(), current.date.getMonth(), current.date.getDate()).getTime(),
-      createdAt: tempDate.getTime,
+      createdAt: tempDate.getTime(),
     };
 
     // Cancelar caso o título ou descrição não seja válido
@@ -237,16 +260,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     feather.replace();
     updateTasks();
-    registerDeleteAction();
+    registerOpenInfoButtons();
     registerCompleteAction();
     saveData();
   }
 
   // Chamada quando o usuário deleta uma tarefa
-  function handleDeleteTask(event) {
-    const taskId = event.path.filter(item => item.tagName === 'svg')[0].id;
+  function handleDeleteTask(id) {
+    allTasks = allTasks.filter(task => task.id !== id);
+    updateTasks();
+    render();
+    saveData();
+  }
 
-    allTasks = allTasks.filter(task => task.id !== taskId);
+  function handleMoveTomorrow(id) {
+    allTasks = allTasks.map(task => {
+      if (task.id === id) {
+        return {
+          ...task,
+          day: task.day + TaskDate.ONE_DAY,
+        }
+      }
+
+      return task;
+    });
     updateTasks();
     render();
     saveData();
@@ -332,6 +369,19 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#option-delete-on-complete input').checked = settings.deleteOnComplete;
   }
 
+  // Definir informações no modal de informações da tarefa
+  function populateTaskInfo(id) {
+    const task = getTask(id);
+
+    if (!task) return;
+
+    selectedTask = id;
+
+    document.querySelector('#task-info-modal #task-title').innerHTML = task.title;
+    document.querySelector('#task-info-modal #task-description').innerHTML = task.description;
+    document.querySelector('#task-info-modal #task-created-at').innerHTML = TaskDate.toString(new TaskDate(task.createdAt).date);
+  }
+
   // Fechar um modal
   function closeModal(event, isEvent = true) {
     const modalName = !isEvent ? event : event
@@ -352,6 +402,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelector(`#${modalName}-modal`).classList.remove('closed-modal');
     document.querySelector('.modal').classList.remove('closed-modal');
+  }
+
+  // Retorna os dados de uma tarefa pelo id dela
+  function getTask(id) {
+    if (!id) return;
+
+    const task = allTasks.find((task) => task.id === id);
+
+    return task;
   }
 
   // Atualizar dados salvos para uma nova versão

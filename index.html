@@ -113,6 +113,40 @@
           Adicionar tarefa
         </button>
       </form>
+    </div> <!-- Add Task Modal Content -->
+
+    <div id="task-info-modal" class="modal-content closed-modal">
+      <button modal-name="task-info" class="icon-button modal-close-button">
+        <i data-feather="x"></i>
+      </button>
+
+      <h3 class="modal-title">Detalhes</h3>
+
+      <div class="info-group">
+        <span>Título</span>
+        <strong id="task-title"></strong>
+      </div>
+
+      <div class="info-group">
+        <span>Descrição</span>
+        <strong id="task-description"></strong>
+      </div>
+
+      <div class="info-group">
+        <span>Criado em</span>
+        <strong id="task-created-at"></strong>
+      </div>
+
+      <div class="actions">
+        <button id="task-info-action-move-tomorrow" type="button">
+          <i data-feather="arrow-right"></i>
+          Mover para Amanhã
+        </button>
+        <button id="task-info-action-delete" type="button">
+          <i data-feather="trash"></i>
+          Deletar
+        </button>
+      </div>
     </div>
   </div> <!-- Modal -->
 </body>
